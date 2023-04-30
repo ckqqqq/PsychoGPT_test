@@ -1,8 +1,9 @@
+import config_private
 # [step 1]>> 例如： API_KEY = "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" （此key无效）
-API_KEY = "sk-此处填API密钥"    # 可同时填写多个API-KEY，用英文逗号分割，例如API_KEY = "sk-openaikey1,sk-openaikey2,fkxxxx-api2dkey1,fkxxxx-api2dkey2"
+API_KEY = config_private.private_api_key   # 可同时填写多个API-KEY，用英文逗号分割，例如API_KEY = "sk-openaikey1,sk-openaikey2,fkxxxx-api2dkey1,fkxxxx-api2dkey2"
 
 # [step 2]>> 改为True应用代理，如果直接在海外服务器部署，此处不修改
-USE_PROXY = False
+USE_PROXY = True
 if USE_PROXY:
     # 填写格式是 [协议]://  [地址] :[端口]，填写之前不要忘记把USE_PROXY改成True，如果直接在海外服务器部署，此处不修改
     # 例如    "socks5h://localhost:11284"
@@ -13,15 +14,15 @@ if USE_PROXY:
     # 代理网络的地址，打开你的科学上网软件查看代理的协议(socks5/http)、地址(localhost)和端口(11284)
     proxies = {
         #          [协议]://  [地址]  :[端口]
-        "http":  "socks5h://localhost:11284",
-        "https": "socks5h://localhost:11284",
+        "http":  "socks5h://localhost:11132",
+        "https": "socks5h://localhost:11132",
     }
 else:
     proxies = None
 
 # [step 3]>> 多线程函数插件中，默认允许多少路线程同时访问OpenAI。Free trial users的限制是每分钟3次，Pay-as-you-go users的限制是每分钟3500次
 # 一言以蔽之：免费用户填3，OpenAI绑了信用卡的用户可以填 16 或者更高。提高限制请查询：https://platform.openai.com/docs/guides/rate-limits/overview
-DEFAULT_WORKER_NUM = 3
+DEFAULT_WORKER_NUM = 16
 
 
 # [step 4]>> 以下配置可以优化体验，但大部分场合下并不需要修改

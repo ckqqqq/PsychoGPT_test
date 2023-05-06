@@ -105,8 +105,8 @@ def predict_no_ui_long_connection(inputs, llm_kwargs, history=[], sys_prompt="",
         raise ConnectionAbortedError("正常结束，但显示Token不足，导致输出不完整，请削减单次输入的文本量。")
     return result
 
-
-def predict(inputs, llm_kwargs, plugin_kwargs, chatbot, history=[], system_prompt='', stream = True, additional_fn=None):
+## ckqqqq
+def predict(inputs, llm_kwargs, plugin_kwargs, chatbot, history=[], system_prompt='', stream = True, additional_fn="心理治疗师"):
     """
     发送至chatGPT，流式获取输出。
     用于基础的对话功能。
@@ -125,27 +125,32 @@ def predict(inputs, llm_kwargs, plugin_kwargs, chatbot, history=[], system_promp
         chatbot.append((inputs, "缺少api_key。\n\n1. 临时解决方案：直接在输入区键入api_key，然后回车提交。\n\n2. 长效解决方案：在config.py中配置。"))
         yield from update_ui(chatbot=chatbot, history=history, msg="缺少api_key") # 刷新界面
         return
-
+    
+    raw_input = inputs
+    logging.info(f'[raw_input] {raw_input}')
+    
     if additional_fn is not None:
         import core_functional
         importlib.reload(core_functional)    # 热更新prompt
         core_functional = core_functional.get_core_functions()
-        if "PreProcess" in core_functional[additional_fn]: inputs = core_functional[additional_fn]["PreProcess"](inputs)  # 获取预处理函数（如果有的话）
+        if "PreProcess" in core_functional[additional_fn]: # 目前用不到
+            inputs = core_functional[additional_fn]["PreProcess"](inputs)  # 获取预处理函数（如果有的话）
+        # chatbot.append((inputs, ""))
+        raw_input=inputs
         inputs = core_functional[additional_fn]["Prefix"] + inputs + core_functional[additional_fn]["Suffix"]
-
-    raw_input = inputs
-    logging.info(f'[raw_input] {raw_input}')
-    chatbot.append((inputs, ""))
+    
+    chatbot.append((raw_input, ""))
+    print(f"ckqqqq调试: {inputs}.####.{raw_input}，addtional_fn {additional_fn}, system {system_prompt}")
     yield from update_ui(chatbot=chatbot, history=history, msg="等待响应") # 刷新界面
 
     try:
-        headers, payload = generate_payload(inputs, llm_kwargs, history, system_prompt, stream)
+        headers, payload = generate_payload(inputs, llm_kwargs, history, system_prompt, stream)#发送input信息
     except RuntimeError as e:
-        chatbot[-1] = (inputs, f"您提供的api-key不满足要求，不包含任何可用于{llm_kwargs['llm_model']}的api-key。您可能选择了错误的模型或请求源。")
+        chatbot[-1] = (raw_input, f"您提供的api-key不满足要求，不包含任何可用于{llm_kwargs['llm_model']}的api-key。您可能选择了错误的模型或请求源。")
         yield from update_ui(chatbot=chatbot, history=history, msg="api-key不满足要求") # 刷新界面
         return
-        
-    history.append(inputs); history.append("")
+
+    history.append(raw_input); history.append("")
 
     retry = 0
     while True:
@@ -157,7 +162,7 @@ def predict(inputs, llm_kwargs, plugin_kwargs, chatbot, history=[], system_promp
                                     json=payload, stream=True, timeout=TIMEOUT_SECONDS);break
         except:
             retry += 1
-            chatbot[-1] = ((chatbot[-1][0], timeout_bot_msg))
+            chatbot[-1] = ((chatbot[-1][0], timeout_bot_msg))# 问题其实在这里，你需要改变这里
             retry_msg = f"，正在重试 ({retry}/{MAX_RETRY}) ……" if MAX_RETRY > 0 else ""
             yield from update_ui(chatbot=chatbot, history=history, msg="请求超时"+retry_msg) # 刷新界面
             if retry > MAX_RETRY: raise TimeoutError
@@ -257,7 +262,7 @@ def generate_payload(inputs, llm_kwargs, history, system_prompt, stream):
     what_i_ask_now["role"] = "user"
     what_i_ask_now["content"] = inputs
     messages.append(what_i_ask_now)
-
+    # 输入格式
     payload = {
         "model": llm_kwargs['llm_model'].strip('api2d-'),
         "messages": messages, 
@@ -269,7 +274,7 @@ def generate_payload(inputs, llm_kwargs, history, system_prompt, stream):
         "frequency_penalty": 0,
     }
     try:
-        print(f" {llm_kwargs['llm_model']} : {conversation_cnt} : {inputs[:100]} ..........")
+        print(f" {llm_kwargs['llm_model']} : {conversation_cnt} :user_input: {inputs[:100]} ..........")
     except:
         print('输入中可能存在乱码。')
     return headers,payload

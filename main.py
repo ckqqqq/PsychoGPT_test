@@ -15,7 +15,7 @@ def main():
     from check_proxy import get_current_version
     initial_prompt = "Serve me as a writing and programming assistant."
     title_html = f"<h1 align=\"center\">CKQ API {get_current_version()}</h1>"
-    description =  """代码开源和更新[地址🚀](https://github.com/binary-husky/chatgpt_academic)，感谢热情的[开发者们❤️](https://github.com/binary-husky/chatgpt_academic/graphs/contributors)"""
+    description =  """毕业设计展示"""
 
     # 问询记录, python 版本建议3.9+（越新越好）
     import logging
@@ -132,11 +132,11 @@ def main():
         # 整理反复出现的控件句柄组合
         input_combo = [cookies, max_length_sl, md_dropdown, txt, txt2, top_p, temperature, chatbot, history, system_prompt, plugin_advanced_arg]
         output_combo = [cookies, chatbot, history, status]
-        predict_args = dict(fn=ArgsGeneralWrapper(predict), inputs=input_combo, outputs=output_combo)
-        # 提交按钮、重置按钮
+        predict_args = dict(fn=ArgsGeneralWrapper(predict), inputs=input_combo, outputs=output_combo) # 发送
+        # 提交按钮、重置按钮 
         cancel_handles.append(txt.submit(**predict_args))
         cancel_handles.append(txt2.submit(**predict_args))
-        cancel_handles.append(submitBtn.click(**predict_args))
+        cancel_handles.append(submitBtn.click(**predict_args))# 提交的话则改变
         cancel_handles.append(submitBtn2.click(**predict_args))
         resetBtn.click(lambda: ([], [], "已重置"), None, [chatbot, history, status])
         resetBtn2.click(lambda: ([], [], "已重置"), None, [chatbot, history, status])

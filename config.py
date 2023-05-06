@@ -12,10 +12,11 @@ if USE_PROXY:
     # [端口] 在代理软件的设置里找。虽然不同的代理软件界面不一样，但端口号都应该在最显眼的位置上
 
     # 代理网络的地址，打开你的*学*网软件查看代理的协议(socks5/http)、地址(localhost)和端口(11284)
+    # "http":  "socks5h://localhost:11137",
     proxies = {
         #          [协议]://  [地址]  :[端口]
-        "http":  "socks5h://localhost:11132",
-        "https": "socks5h://localhost:11132",
+        "http":  "socks5h://localhost:11137",
+        "https": "socks5h://localhost:11137",
     }
 else:
     proxies = None
@@ -46,11 +47,12 @@ WEB_PORT = -1
 MAX_RETRY = 2
 
 # OpenAI模型选择是（gpt4现在只对申请成功的人开放，体验gpt-4可以试试api2d）
-LLM_MODEL = "gpt-3.5-turbo" # 可选 ↓↓↓
+# LLM_MODEL = "gpt-3.5-turbo" # 可选 ↓↓↓
+LLM_MODEL = "gpt-4" # 可选 ↓↓↓
 AVAIL_LLM_MODELS = ["gpt-3.5-turbo", "api2d-gpt-3.5-turbo", "gpt-4", "api2d-gpt-4", "chatglm", "newbing"]
 
 # 本地LLM模型如ChatGLM的执行方式 CPU/GPU
-LOCAL_MODEL_DEVICE = "cpu" # 可选 "cuda"
+LOCAL_MODEL_DEVICE = "cuda" # 可选 "cuda"
 
 # 设置gradio的并行线程数（不需要修改）
 CONCURRENT_COUNT = 100

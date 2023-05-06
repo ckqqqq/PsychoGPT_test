@@ -124,7 +124,7 @@ def test_解析ipynb文件():
 # test_下载arxiv论文并翻译摘要()
 # test_解析一个Cpp项目()
 # test_联网回答问题()
-test_解析ipynb文件()
+# test_解析ipynb文件()
 
 input("程序完成，回车退出。")
 print("退出。")

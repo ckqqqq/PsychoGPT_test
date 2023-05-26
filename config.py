@@ -15,12 +15,20 @@ if USE_PROXY:
     # "http":  "socks5h://localhost:11137",
     proxies = {
         #          [协议]://  [地址]  :[端口]
-        "http":  "socks5h://localhost:11137",
-        "https": "socks5h://localhost:11137",
+        "http":  "socks5h://10.110.147.179:22237",
+        "https": "socks5h://10.110.147.179:22237",
     }
+    
 else:
     proxies = None
-
+def modify_proxies():
+    proxies_B={
+        "http":  "http://10.110.147.179:11137",
+        "https": "https://10.110.147.179:11137",
+    }
+    global proxies
+    proxies=proxies_B
+    return proxies
 # [step 3]>> 多线程函数插件中，默认允许多少路线程同时访问OpenAI。Free trial users的限制是每分钟3次，Pay-as-you-go users的限制是每分钟3500次
 # 一言以蔽之：免费用户填3，OpenAI绑了信用卡的用户可以填 16 或者更高。提高限制请查询：https://platform.openai.com/docs/guides/rate-limits/overview
 DEFAULT_WORKER_NUM = 16
@@ -41,10 +49,10 @@ DARK_MODE = True  # "LEFT-RIGHT"（左右布局） # "TOP-DOWN"（上下布局�
 TIMEOUT_SECONDS = 30
 
 # 网页的端口, -1代表随机端口
-WEB_PORT = -1
+WEB_PORT = 38888
 
 # 如果OpenAI不响应（网络卡顿、代理失败、KEY失效），重试的次数限制
-MAX_RETRY = 2
+MAX_RETRY = 4
 
 # OpenAI模型选择是（gpt4现在只对申请成功的人开放，体验gpt-4可以试试api2d）
 # LLM_MODEL = "gpt-3.5-turbo" # 可选 ↓↓↓

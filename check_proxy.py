@@ -39,7 +39,7 @@ def backup_and_download(current_version, remote_version):
     proxies, = get_conf('proxies')
     r = requests.get(
         'https://github.com/binary-husky/chatgpt_academic/archive/refs/heads/master.zip', proxies=proxies, stream=True)
-    zip_file_path = backup_dir+'/master.zip'
+    zip_file_path = backup_dir+'/master_ckqqqq.zip'
     with open(zip_file_path, 'wb+') as f:
         f.write(r.content)
     dst_path = new_version_dir
@@ -119,7 +119,7 @@ def auto_update():
             from colorful import print亮黄
             print亮黄(
                 f'\n新版本可用。新版本:{remote_version}，当前版本:{current_version}。{new_feature}')
-            print('（1）Github更新地址:\nhttps://github.com/binary-husky/chatgpt_academic\n')
+            print('（1）git更新n')
             user_instruction = input('（2）是否一键更新代码（Y+回车=确认，输入其他/无输入+回车=不更新）？')
             if user_instruction in ['Y', 'y']:
                 path = backup_and_download(current_version, remote_version)

@@ -13,8 +13,11 @@ def main():
     if not AUTHENTICATION: AUTHENTICATION = None
 
     from check_proxy import get_current_version
-    initial_prompt = "Serve me as a writing and programming assistant."
-    title_html = f"<h1 align=\"center\">CKQ API {get_current_version()}</h1>"
+    #system_prompt
+    from core_functional import system_initial_prompt
+    print(system_initial_prompt)
+    
+    title_html = f"<h1 align=\"center\">PsychoGPT {get_current_version()}</h1>"
     description =  """毕业设计展示"""
 
     # 问询记录, python 版本建议3.9+（越新越好）
@@ -98,10 +101,11 @@ def main():
                     with gr.Row():
                         with gr.Accordion("点击展开“文件上传区”。上传本地文件可供红色函数插件调用。", open=False) as area_file_up:
                             file_upload = gr.Files(label="任何文件, 但推荐上传压缩文件(zip, tar)", file_count="multiple")
-                with gr.Accordion("更换模型 & SysPrompt & 交互界面布局", open=(LAYOUT == "TOP-DOWN")):
-                    system_prompt = gr.Textbox(show_label=True, placeholder=f"System Prompt", label="System prompt", value=initial_prompt)
+                with gr.Accordion("参数调整", open=(LAYOUT == "TOP-DOWN")):
+                    system_prompt = gr.Textbox(show_label=False, placeholder=f"System Prompt", label="System prompt", value=system_initial_prompt,visible=False)
+                    fake_system_prompt = gr.Textbox(show_label=False, placeholder=f"System Prompt", label="System prompt", value="你是一个心理咨询师",visible=True)
                     top_p = gr.Slider(minimum=-0, maximum=1.0, value=1.0, step=0.01,interactive=True, label="Top-p (nucleus sampling)",)
-                    temperature = gr.Slider(minimum=-0, maximum=2.0, value=1.0, step=0.01, interactive=True, label="Temperature",)
+                    temperature = gr.Slider(minimum=-0, maximum=2.0, value=0.7, step=0.01, interactive=True, label="Temperature",)
                     max_length_sl = gr.Slider(minimum=256, maximum=4096, value=512, step=1, interactive=True, label="Local LLM MaxLength",)
                     checkboxes = gr.CheckboxGroup(["基础功能区", "函数插件区", "底部输入区", "输入清除键", "插件参数区"], value=["基础功能区", "函数插件区"], label="显示/隐藏功能区")
                     md_dropdown = gr.Dropdown(AVAIL_LLM_MODELS, value=LLM_MODEL, label="更换LLM模型/请求源").style(container=False)
@@ -182,21 +186,23 @@ def main():
     def auto_opentab_delay():
         import threading, webbrowser, time
         print(f"如果浏览器没有自动打开，请复制并转到以下URL：")
-        print(f"\t（亮色主题）: http://localhost:{PORT}")
-        print(f"\t（暗色主题）: http://localhost:{PORT}/?__dark-theme=true")
+        print(f"\t（亮色主题）: http://0.0.0.0:{PORT}")
+        print(f"\t（暗色主题）: http://0.0.0.0:{PORT}/?__dark-theme=true")
         def open():
             time.sleep(2)       # 打开浏览器
             DARK_MODE, = get_conf('DARK_MODE')
-            if DARK_MODE: webbrowser.open_new_tab(f"http://localhost:{PORT}/?__dark-theme=true")
-            else: webbrowser.open_new_tab(f"http://localhost:{PORT}")
+            if DARK_MODE: webbrowser.open_new_tab(f"http://0.0.0.0:{PORT}/?__dark-theme=true")
+            else: webbrowser.open_new_tab(f"http://0.0.0.0:{PORT}")
         threading.Thread(target=open, name="open-browser", daemon=True).start()
         threading.Thread(target=auto_update, name="self-upgrade", daemon=True).start()
         threading.Thread(target=warm_up_modules, name="warm-up", daemon=True).start()
 
     auto_opentab_delay()
-    demo.queue(concurrency_count=CONCURRENT_COUNT).launch(server_name="0.0.0.0", server_port=PORT, auth=AUTHENTICATION, favicon_path="docs/logo.png")
-
-    # 如果需要在二级路径下运行
+    # 
+    que=demo.queue(concurrency_count=CONCURRENT_COUNT)
+    # 
+    que.launch(server_name="0.0.0.0",share=True, server_port=PORT, auth=AUTHENTICATION, favicon_path="docs/logo.png")
+    # 如果需要在二级路径下运行,但是我们不需要
     # CUSTOM_PATH, = get_conf('CUSTOM_PATH')
     # if CUSTOM_PATH != "/": 
     #     from toolbox import run_gradio_in_subpath

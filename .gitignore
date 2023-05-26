@@ -2,9 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+# /home/ckq/ckq_2023/2023_4/PsychoGPT_test/risk_management/email_setting.py
 # C extensions
 *.so
+*.setting.py
 
 # Distribution / packaging
 .Python

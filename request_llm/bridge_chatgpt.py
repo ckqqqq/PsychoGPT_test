@@ -18,6 +18,7 @@ import logging
 import traceback
 import requests
 import importlib
+import re
 
 # config_private.py放自己的秘密如API和代理网址
 # 读取时首先看是否存在私密的config_private配置文件（不受git管控），如果有，则覆盖原config文件
@@ -67,8 +68,11 @@ def predict_no_ui_long_connection(inputs, llm_kwargs, history=[], sys_prompt="",
         except requests.exceptions.ReadTimeout as e:
             retry += 1
             traceback.print_exc()
-            if retry > MAX_RETRY: raise TimeoutError
-            if MAX_RETRY!=0: print(f'请求超时，正在重试 ({retry}/{MAX_RETRY}) ……')
+            if MAX_RETRY>= retry > MAX_RETRY//2:
+                print(f"第一代理代理代理失败，更换第二代理")
+            if retry > MAX_RETRY: 
+                raise TimeoutError
+            if MAX_RETRY!=0: print(f'请求超时，正在重试 ({retry}/{MAX_RETRY}) ……可能是Openai封杀IP')
 
     stream_response =  response.iter_lines()
     result = ''
@@ -141,6 +145,7 @@ def predict(inputs, llm_kwargs, plugin_kwargs, chatbot, history=[], system_promp
     
     chatbot.append((raw_input, ""))
     print(f"ckqqqq调试: {inputs}.####.{raw_input}，addtional_fn {additional_fn}, system {system_prompt}")
+    print(f"inputs{inputs}, llm_kwargs{llm_kwargs}, plugin_kwargs{plugin_kwargs}, chatbot{chatbot}, history{history}, system_prompt{system_prompt},stream{stream}, additional_fn{additional_fn}")
     yield from update_ui(chatbot=chatbot, history=history, msg="等待响应") # 刷新界面
 
     try:
@@ -170,9 +175,12 @@ def predict(inputs, llm_kwargs, plugin_kwargs, chatbot, history=[], system_promp
     gpt_replying_buffer = ""
     
     is_head_of_the_stream = True
+    flag= False
+    ljflag=False
+    zxsflag=False
     if stream:
         stream_response =  response.iter_lines()
-        while True:
+        while True:### 流式获取信息
             chunk = next(stream_response)
             # print(chunk.decode()[6:])
             if is_head_of_the_stream and (r'"object":"error"' not in chunk.decode()):
@@ -193,6 +201,29 @@ def predict(inputs, llm_kwargs, plugin_kwargs, chatbot, history=[], system_promp
                     # 如果这里抛出异常，一般是文本过长，详情见get_full_error的输出
                     gpt_replying_buffer = gpt_replying_buffer + json.loads(chunk_decoded[6:])['choices'][0]["delta"]["content"]
                     history[-1] = gpt_replying_buffer
+                    # 打印出来的是流
+                    # print("\n\n",f"{history[-1]}")
+                    
+                    search_target="Unknows"
+                    if not flag and re.search(search_target,history[-1]): # 打印出来的是流
+                        print("调用搜索api")
+                        flag=True
+                    # print(chatbot[-1][0])
+                    if not flag and re.search("Know",history[-1]):
+                        flag=True
+                        print("知道信息")
+                    if not ljflag and re.search("了解：",history[-1]):
+                        ljflag=True
+                        history[-1]=re.sub("了解：","\n了解:",history[-1])
+                        # re.sub(r"World", "Python", text)
+                        print("知道信息")
+                    if not zxsflag and re.search("咨询师：",history[-1]):
+                        zxsflag=True
+                        history[-1]=re.sub("咨询师：","\n咨询师：",history[-1])
+                        # re.sub(r"World", "Python", text)
+                        print("知道信息")
+                    history[-1]=re.sub("了解：","\n了解:",history[-1])
+                    history[-1]=re.sub("咨询师：","\n咨询师：",history[-1])
                     chatbot[-1] = (history[-2], history[-1])
                     yield from update_ui(chatbot=chatbot, history=history, msg=status_text) # 刷新界面
 

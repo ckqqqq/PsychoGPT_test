@@ -152,7 +152,7 @@ def main():
             cancel_handles.append(click_handle)
         # 文件上传区，接收文件后与chatbot的互动
         file_upload.upload(on_file_uploaded, [file_upload, chatbot, txt, txt2, checkboxes], [chatbot, txt, txt2])
-        # 函数插件-固定按钮区
+        # 函数插件-固定按钮区 yield
         for k in crazy_fns:
             if not crazy_fns[k].get("AsButton", True): continue
             click_handle = crazy_fns[k]["Button"].click(ArgsGeneralWrapper(crazy_fns[k]["Function"]), [*input_combo, gr.State(PORT)], output_combo)
